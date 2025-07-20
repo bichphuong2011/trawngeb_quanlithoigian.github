@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Thời gian - Gemini AI</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the Inter font and overall aesthetics */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align items to the top */
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 16px; /* More rounded corners */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            border: 1px solid #e0e0e0;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        .section-header {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="date"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+        button {
+            background-color: #28a745; /* Green for primary actions */
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
+        }
+        button:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(40, 167, 69, 0.3);
+        }
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(40, 167, 69, 0.2);
+        }
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+        }
+        .button-group button {
+            flex-grow: 1; /* Allow buttons to grow */
+            min-width: 150px; /* Minimum width for buttons */
+        }
+        .task-list-container {
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            background-color: #fdfdfd;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px dashed #e9ecef;
+        }
+        .task-item:last-child {
+            border-bottom: none;
+        }
+        .task-details {
+            flex-grow: 1;
+            margin-right: 15px;
+        }
+        .task-details strong {
+            color: #0056b3;
+            font-size: 1.1rem;
+        }
+        .task-details span {
+            display: block;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .delete-btn {
+            background-color: #dc3545; /* Red for delete */
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 5px rgba(220, 53, 69, 0.2);
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+        }
+        .message-box {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-weight: 500;
+            text-align: center;
+            transition: opacity 0.3s ease-in-out;
+            opacity: 1;
+        }
+        .message-box.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message-box.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .message-box.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .hidden {
+            display: none;
+            opacity: 0;
+        }
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .section-header {
+                font-size: 1.1rem;
+                padding: 10px 15px;
+            }
+            .button-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .button-group button {
+                width: 100%;
+                min-width: unset;
+            }
+            .task-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .task-details {
+                margin-right: 0;
+                width: 100%;
+            }
+            .delete-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Quản lý Thời gian của bạn</h1>
+
+        <!-- Message Box -->
+        <div id="messageBox" class="message-box hidden" role="alert"></div>
+
+        <!-- Thêm công việc Section -->
+        <div class="section-header">Thêm Công việc Mới</div>
+        <div class="add-task-section">
+            <div class="form-group">
+                <label for="taskTitle">Tiêu đề Công việc:</label>
+                <input type="text" id="taskTitle" placeholder="Ví dụ: Hoàn thành báo cáo dự án" class="rounded-lg">
+            </div>
+            <div class="form-group">
+                <label for="taskDate">Ngày (YYYY-MM-DD):</label>
+                <input type="date" id="taskDate" class="rounded-lg">
+            </div>
+            <div class="form-group">
+                <label for="taskNote">Ghi chú:</label>
+                <textarea id="taskNote" rows="3" placeholder="Ghi chú chi tiết về công việc..." class="rounded-lg"></textarea>
+            </div>
+            <div class="button-group">
+                <button onclick="addTask()">Thêm Công việc</button>
+            </div>
+        </div>
+
+        <!-- Danh sách công việc Section -->
+        <div class="section-header">Danh sách Công việc của bạn</div>
+        <div class="task-list-container" id="taskListContainer">
+            <p class="text-center text-gray-500">Chưa có công việc nào. Hãy thêm một cái!</p>
+        </div>
+        <div class="button-group">
+            <button onclick="displayTasks()">Xem Danh sách Công việc</button>
+        </div>
+
+        <!-- Gợi ý từ Gemini AI Section -->
+        <div class="section-header">Gợi ý từ Gemini AI</div>
+        <div class="gemin coi-ai-section">
+            <div class="form-group">
+                <label for="aiKeyword">Nhập mục tiêu bạn muốn lên kế hoạch (VD: học, làm việc, thể dục...):</label>
+                <input type="text" id="aiKeyword" placeholder="Ví dụ: học" class="rounded-lg">
+            </div>
+            <div class="button-group">
+                <button onclick="getGeminiSuggestion()">Nhận Gợi ý AI</button>
+            </div>
+            <div id="aiSuggestionOutput" class="message-box info mt-4 hidden">
+                <!-- AI suggestion will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Array to store tasks
+        let tasks = [];
+        const TASKS_STORAGE_KEY = 'timeManagerTasks'; // Key for localStorage
+
+        // --- Task Structure ---
+        // Represents a single task with title, date, and note.
+        class Task {
+            constructor(title, date, note) {
+                this.title = title;
+                this.date = date;
+                this.note = note;
+            }
+        }
+
+        // --- Utility Functions ---
+
+        // Displays a message in the message box, then hides it after a delay.
+        // msg: The message text.
+        // type: 'success', 'error', or 'info' for styling.
+        function showMessage(msg, type) {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.textContent = msg;
+            messageBox.className = `message-box ${type}`; // Apply type class
+            messageBox.classList.remove('hidden'); // Show the message box
+
+            // Hide the message after 3 seconds
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 3000);
+        }
+
+        // --- Data Persistence (using localStorage) ---
+
+        // Saves the current tasks array to localStorage.
+        function saveTasks() {
+            try {
+                localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(tasks));
+            } catch (e) {
+                console.error("Lỗi khi lưu công việc vào localStorage:", e);
+                showMessage("Lỗi: Không thể lưu công việc.", "error");
+            }
+        }
+
+        // Loads tasks from localStorage when the app starts.
+        function loadTasks() {
+            try {
+                const storedTasks = localStorage.getItem(TASKS_STORAGE_KEY);
+                if (storedTasks) {
+                    tasks = JSON.parse(storedTasks).map(taskData => new Task(taskData.title, taskData.date, taskData.note));
+                }
+            } catch (e) {
+                console.error("Lỗi khi tải công việc từ localStorage:", e);
+                showMessage("Lỗi: Không thể tải công việc đã lưu.", "error");
+                tasks = []; // Reset tasks if loading fails
+            }
+        }
+
+        // --- Core Application Logic ---
+
+        // Adds a new task based on user input.
+        function addTask() {
+            const titleInput = document.getElementById('taskTitle');
+            const dateInput = document.getElementById('taskDate');
+            const noteInput = document.getElementById('taskNote');
+
+            const title = titleInput.value.trim();
+            const date = dateInput.value.trim();
+            const note = noteInput.value.trim();
+
+            if (!title || !date) {
+                showMessage("Vui lòng nhập tiêu đề và ngày cho công việc.", "error");
+                return;
+            }
+
+            const newTask = new Task(title, date, note);
+            tasks.push(newTask);
+            saveTasks(); // Save tasks after adding
+            displayTasks(); // Update the displayed list
+            showMessage("Đã thêm công việc thành công!", "success");
+
+            // Clear input fields
+            titleInput.value = '';
+            dateInput.value = '';
+            noteInput.value = '';
+        }
+
+        // Displays the list of tasks in the UI.
+        function displayTasks() {
+            const taskListContainer = document.getElementById('taskListContainer');
+            taskListContainer.innerHTML = ''; // Clear previous list
+
+            if (tasks.length === 0) {
+                taskListContainer.innerHTML = '<p class="text-center text-gray-500">Chưa có công việc nào. Hãy thêm một cái!</p>';
+                return;
+            }
+
+            tasks.forEach((task, index) => {
+                const taskItem = document.createElement('div');
+                taskItem.className = 'task-item';
+                taskItem.innerHTML = `
+                    <div class="task-details">
+                        <strong>${index + 1}. ${task.title}</strong>
+                        <span>Ngày: ${task.date}</span>
+                        <span>Ghi chú: ${task.note || 'Không có'}</span>
+                    </div>
+                    <button class="delete-btn rounded-lg" onclick="deleteTask(${index})">Xoá</button>
+                `;
+                taskListContainer.appendChild(taskItem);
+            });
+        }
+
+        // Deletes a task by its index.
+        // index: The index of the task to delete in the tasks array.
+        function deleteTask(index) {
+            if (index >= 0 && index < tasks.length) {
+                tasks.splice(index, 1); // Remove task from array
+                saveTasks(); // Save updated tasks
+                displayTasks(); // Update the displayed list
+                showMessage("Đã xoá công việc thành công!", "success");
+            } else {
+                showMessage("Lỗi: Không tìm thấy công việc để xoá.", "error");
+            }
+        }
+
+        // --- Simulated Gemini AI Suggestion ---
+
+        // Provides a simulated AI suggestion based on a keyword.
+        // keyword: The input keyword from the user.
+        // Returns a string with the suggestion.
+        function geminiSuggest(keyword) {
+            const lowerKeyword = keyword.toLowerCase();
+            if (lowerKeyword.includes("học")) {
+                return "Học từ 8h-10h sáng, nghỉ 10 phút mỗi 50 phút.";
+            } else if (lowerKeyword.includes("thể dục")) {
+                return "Chạy bộ 30 phút lúc 6h sáng.";
+            } else if (lowerKeyword.includes("làm việc")) {
+                return "Làm việc sâu từ 9h-12h, hạn chế dùng mạng xã hội.";
+            } else {
+                return "Gợi ý: Ưu tiên việc quan trọng trước, chia nhỏ công việc.";
+            }
+        }
+
+        // Gets keyword from input and displays AI suggestion.
+        function getGeminiSuggestion() {
+            const keywordInput = document.getElementById('aiKeyword');
+            const keyword = keywordInput.value.trim();
+            const aiSuggestionOutput = document.getElementById('aiSuggestionOutput');
+
+            if (!keyword) {
+                aiSuggestionOutput.textContent = "Vui lòng nhập một mục tiêu để nhận gợi ý.";
+                aiSuggestionOutput.className = "message-box error mt-4";
+                aiSuggestionOutput.classList.remove('hidden');
+                return;
+            }
+
+            const suggestion = geminiSuggest(keyword);
+            aiSuggestionOutput.textContent = `Gemini AI gợi ý: ${suggestion}`;
+            aiSuggestionOutput.className = "message-box info mt-4";
+            aiSuggestionOutput.classList.remove('hidden');
+
+            keywordInput.value = ''; // Clear keyword input
+        }
+
+        // --- Initialization ---
+
+        // Runs when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTasks();      // Load tasks from local storage
+            displayTasks();   // Display them immediately
+        });
+    </script>
+</body>
+</html>
